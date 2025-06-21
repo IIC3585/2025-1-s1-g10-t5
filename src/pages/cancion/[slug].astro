@@ -1,9 +1,9 @@
 ---
+import Layout from '../../layouts/Layout.astro';
 import { getEntryBySlug } from 'astro:content';
-import PreviewPlayer from '../../components/vue/PreviewPlayer.vue';
-import FavoriteButton from '../../components/react/FavoriteButton.jsx';
+import PreviewPlayer from '../../components/Vue/PreviewPlayer.vue';
+import FavoriteButton from '../../components/React/FavoriteButton.jsx';
 import { getCollection } from 'astro:content';
-
 
 export async function getStaticPaths() {
   const entries = await getCollection('canciones');
@@ -20,16 +20,65 @@ if (!entry) throw new Error(`Canción no encontrada: ${slug}`);
 const { id, name, artist, image, preview_url } = entry.data;
 ---
 
-<html>
-  <head>
-    <title>{name}</title>
-  </head>
-  <body>
-    <h1>{name}</h1>
-    <p>Artista: {artist}</p>
-    <img src={image} width="300" />
+<Layout title={`${name} - ${artist}`}>
+  <div class="main-container">
+    <div class="song-detail">
+      <div class="song-header">
+        <h1 class="song-title-large">{name}</h1>
+        <p class="song-artist-large">{artist}</p>
+      </div>
 
-    <PreviewPlayer client:load previewUrl={preview_url} />
-    <FavoriteButton client:visible songId={id} />
-  </body>
-</html>
+      <img 
+        src={image} 
+        alt={`${name} album cover`}
+        class="song-image"
+        loading="lazy"
+      />
+
+      <div class="controls-section">
+        <PreviewPlayer client:load previewUrl={preview_url} />
+        <FavoriteButton client:visible songId={id} />
+      </div>
+
+      <div class="navigation-links">
+        <a href="/" class="nav-link">🏠 Inicio</a>
+        <a href={`/artista/${artist.replace(/\s+/g, '-').toLowerCase()}`} class="nav-link">👤 Ver más de {artist}</a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .navigation-links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .nav-link {
+    color: #e91e63;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #e91e63;
+    border-radius: 2rem;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .nav-link:hover {
+    background: #e91e63;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .navigation-links {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+</style>

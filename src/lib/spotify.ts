@@ -1,18 +1,19 @@
-import axios from 'axios';
-import { findPreviewUrl } from './spotifyEnhanced';
+import axios from "axios";
+import { findPreviewUrl } from "./spotifyEnhanced";
 
 const client_id = process.env.SPOTIFY_CLIENT_ID!;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET!;
 
 export async function getSpotifyToken(): Promise<string> {
   const res = await axios.post(
-    'https://accounts.spotify.com/api/token',
-    'grant_type=client_credentials',
+    "https://accounts.spotify.com/api/token",
+    "grant_type=client_credentials",
     {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
         Authorization:
-          'Basic ' + Buffer.from(`${client_id}:${client_secret}`).toString('base64'),
+          "Basic " +
+          Buffer.from(`${client_id}:${client_secret}`).toString("base64"),
       },
     }
   );
@@ -37,7 +38,10 @@ export async function getTopTracksFromArtist(artistId: string): Promise<any[]> {
   const enriched = await Promise.all(
     tracks.map(async (track: any) => {
       if (!track.preview_url) {
-        const fallback = await findPreviewUrl(track.name, track.artists[0]?.name ?? '');
+        const fallback = await findPreviewUrl(
+          track.name,
+          track.artists[0]?.name ?? ""
+        );
         return { ...track, preview_url: fallback };
       }
       return track;
@@ -46,4 +50,3 @@ export async function getTopTracksFromArtist(artistId: string): Promise<any[]> {
 
   return enriched;
 }
-

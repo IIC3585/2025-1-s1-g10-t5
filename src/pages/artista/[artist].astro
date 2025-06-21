@@ -1,0 +1,170 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('canciones');
+  const artists = [...new Set(entries.map(entry => entry.data.artist))];
+  
+  return artists.map(artist => ({
+    params: { artist: artist.replace(/\s+/g, '-').toLowerCase() },
+    props: { artist }
+  }));
+}
+
+const { artist } = Astro.props;
+const canciones = await getCollection('canciones');
+const artistSongs = canciones.filter(song => song.data.artist === artist);
+
+if (artistSongs.length === 0) {
+  throw new Error(`Artista no encontrado: ${artist}`);
+}
+
+const artistImage = artistSongs[0].data.image;
+---
+
+<Layout title={`${artist} - Canciones`}>
+  <div class="main-container">
+    <header class="artist-header">
+      <div class="artist-hero">
+        <img 
+          src={artistImage} 
+          alt={`${artist} album cover`}
+          class="artist-hero-image"
+        />
+        <div class="artist-hero-overlay">
+          <h1 class="artist-hero-title">{artist}</h1>
+          <p class="artist-hero-subtitle">{artistSongs.length} canciones</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="songs-list">
+      <div class="songs-header">
+        <h2 class="songs-title">🎵 Todas las canciones</h2>
+        <a href="/" class="back-link">← Volver al inicio</a>
+      </div>
+      
+      <div class="songs-grid">
+        {artistSongs.map(({ slug, data }) => (
+          <div class="song-item">
+            <a href={`/cancion/${slug}`} class="song-link">
+              <img 
+                src={data.image} 
+                alt={data.name}
+                class="song-item-image"
+                loading="lazy"
+              />
+              <div class="song-item-info">
+                <h3 class="song-title">{data.name}</h3>
+                <p class="song-artist">{data.artist}</p>
+              </div>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .artist-header {
+    margin-bottom: 2rem;
+  }
+
+  .artist-hero {
+    position: relative;
+    height: 300px;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .artist-hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .artist-hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 2rem;
+    color: white;
+  }
+
+  .artist-hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .artist-hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    font-weight: 300;
+  }
+
+  .songs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .songs-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+  }
+
+  .back-link {
+    color: #e91e63;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border: 2px solid #e91e63;
+    border-radius: 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .back-link:hover {
+    background: #e91e63;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .song-item-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 768px) {
+    .artist-hero {
+      height: 200px;
+    }
+
+    .artist-hero-title {
+      font-size: 2rem;
+    }
+
+    .songs-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .songs-title {
+      font-size: 1.5rem;
+    }
+  }
+</style> 

@@ -1,30 +1,169 @@
 ---
+import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import FavoritesSection from '../components/React/FavoritesSection.jsx';
 
 const canciones = await getCollection('canciones');
 
-const grouped = canciones.reduce((acc, song) => {
-  acc[song.data.artist] = acc[song.data.artist] || [];
-  acc[song.data.artist].push(song);
+// Group songs by artist and get the first song's image for each artist
+const artistData = canciones.reduce((acc, song) => {
+  if (!acc[song.data.artist]) {
+    acc[song.data.artist] = {
+      songs: [],
+      image: song.data.image,
+      songCount: 0
+    };
+  }
+  acc[song.data.artist].songs.push(song);
+  acc[song.data.artist].songCount = acc[song.data.artist].songs.length;
   return acc;
 }, {});
+
+// Convert to array and sort by artist name
+const artists = Object.entries(artistData)
+  .map(([artist, data]) => ({ artist, ...data }))
+  .sort((a, b) => a.artist.localeCompare(b.artist));
 ---
 
-<html>
-  <head><title>Top 50 Spotify</title></head>
-  <body>
-    <h1>Top 50 Canciones</h1>
-    {Object.entries(grouped).map(([artist, tracks]) => (
-      <section>
-        <h2>{artist}</h2>
-        <ul>
-          {tracks.map(({ slug, data }) => (
-            <li>
-              <a href={`/cancion/${slug}`}>{data.name}</a>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))}
-  </body>
-</html>
+<Layout title="Top 50 Spotify - Descubre Música Increíble">
+  <div class="main-container">
+    <header class="page-header">
+      <h1 class="page-title">🎵 Top 50 Spotify</h1>
+      <p class="page-subtitle">Descubre las mejores canciones de tus artistas favoritos</p>
+    </header>
+
+    <!-- React Island: Favorites Section -->
+    <FavoritesSection client:visible allSongs={canciones} />
+
+    <div class="artists-grid">
+      {artists.map(({ artist, image, songCount, songs }) => (
+        <div class="artist-card" onclick={`window.location.href='/artista/${artist.replace(/\s+/g, '-').toLowerCase()}'`}>
+          <div class="artist-image-container">
+            <img 
+              src={image} 
+              alt={`${artist} album cover`}
+              class="artist-image"
+              loading="lazy"
+            />
+            <div class="artist-overlay">
+              <span class="view-songs">Ver canciones</span>
+            </div>
+          </div>
+          <div class="artist-info">
+            <h2 class="artist-name">{artist}</h2>
+            <p class="song-count">{songCount} canciones</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="featured-section">
+      <h2 class="section-title">🎶 Canciones Destacadas</h2>
+      <div class="featured-songs">
+        {canciones.slice(0, 6).map(({ slug, data }) => (
+          <a href={`/cancion/${slug}`} class="featured-song">
+            <img src={data.image} alt={data.name} class="featured-song-image" />
+            <div class="featured-song-info">
+              <h3 class="featured-song-title">{data.name}</h3>
+              <p class="featured-song-artist">{data.artist}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .artist-image-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .artist-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .artist-card:hover .artist-overlay {
+    opacity: 1;
+  }
+
+  .view-songs {
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .featured-section {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #333;
+  }
+
+  .featured-songs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .featured-song {
+    text-decoration: none;
+    color: inherit;
+    background: #f8f9fa;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .featured-song:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .featured-song-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+
+  .featured-song-info {
+    padding: 1rem;
+  }
+
+  .featured-song-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #333;
+    font-size: 0.95rem;
+  }
+
+  .featured-song-artist {
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  @media (max-width: 768px) {
+    .featured-songs {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+  }
+</style>
