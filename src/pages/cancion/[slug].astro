@@ -1,16 +1,18 @@
 ---
-import { getEntryBySlug, getCollection } from 'astro:content';
+import { getEntryBySlug } from 'astro:content';
 import PreviewPlayer from '../../components/vue/PreviewPlayer.vue';
 import FavoriteButton from '../../components/react/FavoriteButton.jsx';
+import { getCollection } from 'astro:content';
+
 
 export async function getStaticPaths() {
   const entries = await getCollection('canciones');
-  return entries.map((entry: any) => ({
-    params: { slug: entry.slug },
+  return entries.map(entry => ({
+    params: { slug: entry.slug }, // slug es string plano
   }));
 }
 
-const { slug } = Astro.params;
+const slug = Astro.params.slug;
 const entry = await getEntryBySlug('canciones', slug);
 
 if (!entry) throw new Error(`Canción no encontrada: ${slug}`);

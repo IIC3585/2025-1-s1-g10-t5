@@ -20,11 +20,39 @@ export async function getSpotifyToken(): Promise<string> {
   return res.data.access_token;
 }
 
-export async function getTopTracks(): Promise<any[]> {
-  const token = await getSpotifyToken();
+// export async function getTopTracks(): Promise<any[]> {
+//   const token = await getSpotifyToken();
 
-  // The Weeknd
-  const artistId = '1Xyo4u8uXC1ZmMpatF05PJ';
+//   // The Weeknd
+//   const artistId = '1Xyo4u8uXC1ZmMpatF05PJ';
+
+//   const res = await axios.get(
+//     `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     }
+//   );
+
+//   const tracks = res.data.tracks;
+
+//   const enriched = await Promise.all(
+//     tracks.map(async (track: any) => {
+//       if (!track.preview_url) {
+//         const fallback = await findPreviewUrl(track.name, track.artists[0]?.name ?? '');
+//         // console.log(`[Fallback] ${track.name}: ${fallback}`);
+//         return { ...track, preview_url: fallback };
+//       }
+//       return track;
+//     })
+//   );
+
+//   return enriched;
+// }
+
+export async function getTopTracksFromArtist(artistId: string): Promise<any[]> {
+  const token = await getSpotifyToken();
 
   const res = await axios.get(
     `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
@@ -41,7 +69,6 @@ export async function getTopTracks(): Promise<any[]> {
     tracks.map(async (track: any) => {
       if (!track.preview_url) {
         const fallback = await findPreviewUrl(track.name, track.artists[0]?.name ?? '');
-        // console.log(`[Fallback] ${track.name}: ${fallback}`);
         return { ...track, preview_url: fallback };
       }
       return track;
@@ -50,3 +77,4 @@ export async function getTopTracks(): Promise<any[]> {
 
   return enriched;
 }
+

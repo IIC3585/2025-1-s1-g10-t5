@@ -5,24 +5,47 @@
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
-import { getTopTracks } from './spotify';
+import { getTopTracksFromArtist } from './spotify';
+
+const ARTISTS = [
+  { name: 'The Weeknd', id: '1Xyo4u8uXC1ZmMpatF05PJ' },
+  { name: 'Taylor Swift', id: '06HL4z0CvFAxyc27GXpf02' },
+  { name: 'Coldplay', id: '4gzpq5DPGxSnKTe4SA8HAU' },
+  { name: 'The Neighbourhood', id: '1tqysapcCh1lWEAc9dIFpa' },
+  { name: 'Billie Eilish', id: '6qqNVTkY8uBg9cP3Jd7DAH' },
+];
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '');
+}
 
 async function main() {
-  const tracks = await getTopTracks();
+  const baseDir = path.join('src/content/canciones');
+  fs.mkdirSync(baseDir, { recursive: true });
 
-  for (const track of tracks) {
-    const slug = track.id;
-    const filePath = path.join('src/content/canciones', `${slug}.md`);
-    const content = `---
+  for (const artist of ARTISTS) {
+    const tracks = await getTopTracksFromArtist(artist.id);
+
+    for (const track of tracks) {
+      const artistSlug = slugify(artist.name);
+      const trackSlug = slugify(track.name);
+      const fullSlug = `${artistSlug}-${trackSlug}`; // slug plano y único
+
+      const filePath = path.join(baseDir, `${fullSlug}.md`);
+      const content = `---
 id: "${track.id}"
 name: "${track.name.replace(/"/g, '\\"')}"
-artist: "${track.artists[0].name.replace(/"/g, '\\"')}"
+artist: "${artist.name.replace(/"/g, '\\"')}"
 image: "${track.album.images[0].url}"
 preview_url: ${track.preview_url ? `"${track.preview_url}"` : null}
 ---
 `;
-    fs.writeFileSync(filePath, content);
-    console.log(`Saved ${filePath}`);
+      fs.writeFileSync(filePath, content);
+      console.log(`Saved ${filePath}`);
+    }
   }
 }
 
