@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { findPreviewUrl } from './spotifyEnhanced';
 
-const client_id = import.meta.env.SPOTIFY_CLIENT_ID;
-const client_secret = import.meta.env.SPOTIFY_CLIENT_SECRET;
+const client_id = process.env.SPOTIFY_CLIENT_ID!;
+const client_secret = process.env.SPOTIFY_CLIENT_SECRET!;
 
 export async function getSpotifyToken(): Promise<string> {
   const res = await axios.post(

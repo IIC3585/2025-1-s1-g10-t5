@@ -16,5 +16,8 @@
     "dotenv": "^16.5.0",
     "spotify-preview-finder": "^2.1.0",
     "swiper": "^11.2.8"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3"
   }
 }

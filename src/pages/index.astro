@@ -1,6 +1,7 @@
 ---
-import { getTopTracks } from '../lib/spotify';
-const tracks = await getTopTracks();
+import { getCollection } from 'astro:content';
+
+const canciones = await getCollection('canciones');
 ---
 
 <html>
@@ -8,15 +9,13 @@ const tracks = await getTopTracks();
     <title>Top 50 Spotify</title>
   </head>
   <body>
-    <h1>Top 50 Canciones en Spotify</h1>
+    <h1>Top Canciones en Spotify</h1>
     <ul>
-		<ul>
-		{tracks.map(track => (
-			<li>
-				<a href={`/cancion/${track.id}`}>{track.name} - {track.artists[0].name}</a>
-			</li>
-		))}
-		</ul>
+      {canciones.map(({ slug, data }) => (
+        <li>
+          <a href={`/cancion/${slug}`}>{data.name} - {data.artist}</a>
+        </li>
+      ))}
     </ul>
   </body>
 </html>
