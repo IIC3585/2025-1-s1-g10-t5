@@ -2,20 +2,29 @@
 import { getCollection } from 'astro:content';
 
 const canciones = await getCollection('canciones');
+
+const grouped = canciones.reduce((acc, song) => {
+  acc[song.data.artist] = acc[song.data.artist] || [];
+  acc[song.data.artist].push(song);
+  return acc;
+}, {});
 ---
 
 <html>
-  <head>
-    <title>Top 50 Spotify</title>
-  </head>
+  <head><title>Top 50 Spotify</title></head>
   <body>
-    <h1>Top Canciones en Spotify</h1>
-    <ul>
-      {canciones.map(({ slug, data }) => (
-        <li>
-          <a href={`/cancion/${slug}`}>{data.name} - {data.artist}</a>
-        </li>
-      ))}
-    </ul>
+    <h1>Top 50 Canciones</h1>
+    {Object.entries(grouped).map(([artist, tracks]) => (
+      <section>
+        <h2>{artist}</h2>
+        <ul>
+          {tracks.map(({ slug, data }) => (
+            <li>
+              <a href={`/cancion/${slug}`}>{data.name}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
   </body>
 </html>
