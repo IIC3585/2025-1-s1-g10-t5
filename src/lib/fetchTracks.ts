@@ -2,28 +2,28 @@
 // es un script para poblar src/content/canciones
 // la idea es que Astro las convierta en contenido estatico con ssg
 
-import 'dotenv/config';
-import fs from 'fs';
-import path from 'path';
-import { getTopTracksFromArtist } from './spotify';
+import "dotenv/config";
+import fs from "fs";
+import path from "path";
+import { getTopTracksFromArtist } from "./spotify";
 
 const ARTISTS = [
-  { name: 'The Weeknd', id: '1Xyo4u8uXC1ZmMpatF05PJ' },
-  { name: 'Taylor Swift', id: '06HL4z0CvFAxyc27GXpf02' },
-  { name: 'Coldplay', id: '4gzpq5DPGxSnKTe4SA8HAU' },
-  { name: 'The Neighbourhood', id: '1tqysapcCh1lWEAc9dIFpa' },
-  { name: 'Billie Eilish', id: '6qqNVTkY8uBg9cP3Jd7DAH' },
+  { name: "The Weeknd", id: "1Xyo4u8uXC1ZmMpatF05PJ" },
+  { name: "Taylor Swift", id: "06HL4z0CvFAxyc27GXpf02" },
+  { name: "Coldplay", id: "4gzpq5DPGxSnKTe4SA8HAU" },
+  { name: "The Neighbourhood", id: "1tqysapcCh1lWEAc9dIFpa" },
+  { name: "Billie Eilish", id: "6qqNVTkY8uBg9cP3Jd7DAH" },
 ];
 
 function slugify(text: string): string {
   return text
     .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w\-]+/g, '');
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "");
 }
 
 async function main() {
-  const baseDir = path.join('src/content/canciones');
+  const baseDir = path.join("src/content/canciones");
   fs.mkdirSync(baseDir, { recursive: true });
 
   for (const artist of ARTISTS) {

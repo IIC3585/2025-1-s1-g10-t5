@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
-import FavoritesSection from '../components/Vue/FavoritesSection.vue';
+import FavoritesSection from '../components/React/FavoritesSection.jsx';
 
 const canciones = await getCollection('canciones');
 
@@ -32,7 +32,7 @@ const artists = Object.entries(artistData)
       <p class="page-subtitle">Descubre las mejores canciones de tus artistas favoritos</p>
     </header>
 
-    <!-- Vue Island: Favorites Section -->
+    <!-- React Island: Favorites Section -->
     <FavoritesSection client:visible allSongs={canciones} />
 
     <div class="artists-grid">
