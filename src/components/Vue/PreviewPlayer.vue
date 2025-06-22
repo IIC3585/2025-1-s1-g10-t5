@@ -2,128 +2,117 @@
   <div class="preview-player">
     <button
       @click="togglePlay"
+      :disabled="!canPlay || isLoading"
       class="play-button"
-      :class="{
-        playing: isPlaying,
-        loading: isLoading,
-        disabled: !canPlay && !isLoading,
-      }"
+      :class="{ playing: isPlaying, loading: isLoading }"
     >
       <div v-if="isLoading" class="loading-spinner"></div>
-      <span v-else-if="isPlaying" class="icon">⏸️</span>
-      <span v-else-if="canPlay" class="icon">▶️</span>
-      <span v-else class="icon">🚫</span>
-
-      <span class="button-text">
-        {{ getButtonText() }}
-      </span>
+      <span v-else-if="isPlaying">⏸️ Pausar</span>
+      <span v-else-if="canPlay">▶️ Reproducir</span>
+      <span v-else>🚫 No disponible</span>
     </button>
 
-    <div v-if="error" class="error-message">
-      {{ error }}
-    </div>
+    <div v-if="error" class="error-message">{{ error }}</div>
 
-    <audio
-      ref="audio"
-      :src="previewUrl"
-      @canplay="onCanPlay"
-      @ended="onAudioEnded"
-      @error="handleAudioError"
-      @loadstart="onLoadStart"
-      preload="metadata"
-    />
+    <audio ref="audio" preload="none" @ended="onAudioEnded" />
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from "vue";
+<script setup lang="ts">
+import { ref, onMounted, watch } from 'vue';
 
-const props = defineProps({
-  previewUrl: String,
-});
+const props = defineProps<{ previewUrl: string | null }>();
 
-const audio = ref(null);
-const isPlaying = ref(false);
-const canPlay = ref(false);
+const audio = ref<HTMLAudioElement | null>(null);
 const isLoading = ref(false);
-const error = ref("");
-const playWhenReady = ref(false);
+const canPlay = ref(false);
+const isPlaying = ref(false);
+const error = ref<string | null>(null);
 
-function getButtonText() {
-  if (isLoading.value) return "Cargando...";
-  if (isPlaying.value) return "Pausar";
-  if (canPlay.value) return "Reproducir";
-  return "No disponible";
-}
+let retryCount = 0;
+const MAX_RETRIES = 3;
 
-function onLoadStart() {
+async function prepareAudio() {
+  if (!audio.value || !props.previewUrl) return;
   isLoading.value = true;
-  error.value = "";
   canPlay.value = false;
-  isPlaying.value = false;
-  playWhenReady.value = false;
+  error.value = null;
+
+  try {
+    const resp = await fetch(props.previewUrl);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    audio.value.src = blobUrl;
+    await new Promise<void>((resolve, reject) => {
+      const onCP = () => {
+        resolve();
+      };
+      const onErr = () => {
+        reject();
+      };
+      audio.value!.addEventListener('canplaythrough', onCP, { once: true });
+      audio.value!.addEventListener('error', onErr, { once: true });
+      audio.value!.load();
+    });
+
+    canPlay.value = true;
+  } catch (e) {
+    retryCount++;
+    if (retryCount <= MAX_RETRIES) {
+      setTimeout(prepareAudio, 500);
+    } else {
+      error.value = 'No se pudo cargar la vista previa.';
+    }
+  } finally {
+    isLoading.value = false;
+  }
 }
 
-function onCanPlay() {
-  isLoading.value = false;
-  canPlay.value = true;
-  if (playWhenReady.value) {
-    playAudio();
-  }
+function playAudio() {
+  if (!audio.value) return;
+  audio.value
+    .play()
+    .then(() => {
+      isPlaying.value = true;
+    })
+    .catch(() => {
+      error.value = 'Error al reproducir.';
+    });
+}
+
+function pauseAudio() {
+  audio.value?.pause();
+  isPlaying.value = false;
+}
+
+function togglePlay() {
+  if (isPlaying.value) return pauseAudio();
+  if (canPlay.value) return playAudio();
 }
 
 function onAudioEnded() {
   isPlaying.value = false;
-  playWhenReady.value = false;
 }
 
-function playAudio() {
-  if (!audio.value || !canPlay.value) return;
-  audio.value.play().catch((e) => {
-    console.error("Error al reproducir:", e);
-    error.value = "Error al reproducir el audio";
+watch(
+  () => props.previewUrl,
+  () => {
+    retryCount = 0;
     isPlaying.value = false;
-  });
-  isPlaying.value = true;
-  playWhenReady.value = false;
-}
-
-function pauseAudio() {
-  if (!audio.value) return;
-  audio.value.pause();
-  isPlaying.value = false;
-  playWhenReady.value = false;
-}
-
-function togglePlay() {
-  if (isPlaying.value) {
-    pauseAudio();
-    return;
-  }
-
-  if (isLoading.value) {
-    playWhenReady.value = true;
-    return;
-  }
-
-  if (canPlay.value) {
-    playAudio();
-  }
-}
-
-function handleAudioError(e) {
-  console.error("Error en el audio:", e);
-  isLoading.value = false;
-  canPlay.value = false;
-  playWhenReady.value = false;
-  error.value = "Preview no disponible.";
-}
+    canPlay.value = false;
+    error.value = null;
+    if (audio.value) audio.value.src = '';
+    if (props.previewUrl) prepareAudio();
+  },
+);
 
 onMounted(() => {
   if (!props.previewUrl) {
-    isLoading.value = false;
-    canPlay.value = false;
-    error.value = "Preview no disponible.";
+    error.value = 'Preview no disponible.';
+  } else {
+    prepareAudio();
   }
 });
 </script>
