@@ -10,7 +10,7 @@ export default function FavoritesSection({ allSongs }) {
         const favIds = JSON.parse(localStorage.getItem("favorites") || "[]");
         const favSongs = favIds
           .map((id) => allSongs.find((song) => song.data.id === id))
-          .filter(Boolean); // Remove any undefined songs if an ID is not found
+          .filter(Boolean);
 
         setFavoriteSongs(favSongs);
       } catch (error) {
@@ -23,7 +23,6 @@ export default function FavoritesSection({ allSongs }) {
 
     loadFavorites();
 
-    // Listen for storage changes to keep the component in sync
     const handleStorageChange = () => loadFavorites();
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("favoritesUpdated", handleStorageChange);
@@ -43,7 +42,6 @@ export default function FavoritesSection({ allSongs }) {
     localStorage.setItem("favorites", JSON.stringify(updatedFavIds));
     setFavoriteSongs(updatedFavoriteSongs);
 
-    // Dispatch custom event to notify other components (like the heart button)
     window.dispatchEvent(new CustomEvent("favoritesUpdated"));
   };
 

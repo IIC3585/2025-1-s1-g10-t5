@@ -28,11 +28,9 @@ const artists = Object.entries(artistData)
 <Layout title="Top 50 Spotify - Descubre Música Increíble">
   <div class="main-container">
     <header class="page-header">
-      <h1 class="page-title">🎵 Top 50 Spotify</h1>
       <p class="page-subtitle">Descubre las mejores canciones de tus artistas favoritos</p>
     </header>
 
-    <!-- React Island: Favorites Section -->
     <FavoritesSection client:visible allSongs={canciones} />
 
     <div class="artists-grid">
@@ -55,21 +53,6 @@ const artists = Object.entries(artistData)
           </div>
         </div>
       ))}
-    </div>
-
-    <div class="featured-section">
-      <h2 class="section-title">🎶 Canciones Destacadas</h2>
-      <div class="featured-songs">
-        {canciones.slice(0, 6).map(({ slug, data }) => (
-          <a href={`/cancion/${slug}`} class="featured-song">
-            <img src={data.image} alt={data.name} class="featured-song-image" />
-            <div class="featured-song-info">
-              <h3 class="featured-song-title">{data.name}</h3>
-              <p class="featured-song-artist">{data.artist}</p>
-            </div>
-          </a>
-        ))}
-      </div>
     </div>
   </div>
 </Layout>

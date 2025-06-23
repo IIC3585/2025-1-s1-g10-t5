@@ -1,4 +1,3 @@
-/* Global Styles */
 * {
   box-sizing: border-box;
 }
@@ -13,7 +12,6 @@ body {
   color: #333;
 }
 
-/* Favorite Button Styles */
 .favorite-container {
   position: relative;
   display: inline-block;
@@ -119,7 +117,6 @@ body {
   white-space: nowrap;
 }
 
-/* Toast Notification */
 .toast-notification {
   position: fixed;
   top: 20px;
@@ -145,13 +142,16 @@ body {
   }
 }
 
-/* Favorites Section Styles */
 .favorites-section {
   background: white;
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
+}
+
+.section-title {
+  text-align: center;
 }
 
 .favorites-grid {
@@ -240,7 +240,6 @@ body {
   color: #666;
 }
 
-/* Main Layout Styles */
 .main-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -266,7 +265,6 @@ body {
   font-weight: 300;
 }
 
-/* Artist Grid */
 .artists-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -311,7 +309,6 @@ body {
   font-size: 0.9rem;
 }
 
-/* Song List */
 .songs-list {
   background: white;
   border-radius: 1rem;
@@ -357,7 +354,6 @@ body {
   color: #666;
 }
 
-/* Song Detail Page */
 .song-detail {
   background: white;
   border-radius: 1rem;
@@ -402,7 +398,6 @@ body {
   align-items: center;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .main-container {
     padding: 1rem;
