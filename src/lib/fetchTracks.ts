@@ -11,7 +11,7 @@ const ARTISTS = [
   { name: "The Weeknd", id: "1Xyo4u8uXC1ZmMpatF05PJ" },
   { name: "Taylor Swift", id: "06HL4z0CvFAxyc27GXpf02" },
   { name: "Coldplay", id: "4gzpq5DPGxSnKTe4SA8HAU" },
-  { name: "The Neighbourhood", id: "1tqysapcCh1lWEAc9dIFpa" },
+  { name: "Lana Del Rey", id: "00FQb4jTyendYWaN8pK0wa" },
   { name: "Billie Eilish", id: "6qqNVTkY8uBg9cP3Jd7DAH" },
 ];
 
